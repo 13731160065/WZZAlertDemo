@@ -141,7 +141,7 @@
             [alertV addSubview:okButton];
             [okButton.titleLabel setFont:buttonFont];
             [okButton setTitle:action2.title forState:UIControlStateNormal];
-            action.button = okButton;
+            action2.button = okButton;
             [okButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
             
             //横线
@@ -191,6 +191,7 @@
 }
 
 - (void)cancelClick {
+    fillLayer.opacity = 0.0f;
     CABasicAnimation * anim = [CABasicAnimation animationWithKeyPath:@"opacity"];
     anim.fromValue = @(0.5f);
     anim.toValue = @(0.0f);
@@ -199,10 +200,8 @@
     [fillLayer addAnimation:anim forKey:@"alphy2"];
     //取消
     [UIView animateWithDuration:0.2f animations:^{
-        [updateView setBackgroundColor:[UIColor colorWithWhite:0.0f alpha:0.0f]];
         [alertV setAlpha:0.0f];
     } completion:^(BOOL finished) {
-        updateView = nil;
         [self removeFromSuperview];
     }];
 }
