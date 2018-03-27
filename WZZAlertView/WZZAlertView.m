@@ -93,7 +93,7 @@
     UILabel * titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, 0, alertV.frame.size.width-16, 40)];
     [alertV addSubview:titleLabel];
     [titleLabel setTextAlignment:NSTextAlignmentCenter];
-    [titleLabel setText:@"温馨提示"];
+    [titleLabel setText:title];
     [titleLabel setFont:[UIFont boldSystemFontOfSize:17]];
     
     //文字
