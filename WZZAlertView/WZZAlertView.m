@@ -104,6 +104,17 @@
     [messageLabel setFont:font];
     [messageLabel setNumberOfLines:0];
     
+    if (title && !message) {
+        CGRect tmpFrame = titleLabel.frame;
+        tmpFrame.size.height += (alertTextHeight-8);
+        titleLabel.frame = tmpFrame;
+    }
+    if (!title && message) {
+        CGRect tmpFrame = messageLabel.frame;
+        tmpFrame.origin.y = 8;
+        messageLabel.frame = tmpFrame;
+    }
+    
     UIFont * buttonFont = [UIFont systemFontOfSize:17];
     
     switch (actions.count) {
