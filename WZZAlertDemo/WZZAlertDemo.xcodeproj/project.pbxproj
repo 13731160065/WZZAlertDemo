@@ -15,6 +15,7 @@
 		7198803820D0B4A900ABA2F1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198803720D0B4A900ABA2F1 /* main.m */; };
 		7198804220D0B4A900ABA2F1 /* WZZAlertDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198804120D0B4A900ABA2F1 /* WZZAlertDemoTests.m */; };
 		7198804D20D0B4A900ABA2F1 /* WZZAlertDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198804C20D0B4A900ABA2F1 /* WZZAlertDemoUITests.m */; };
+		7198806120D0B54100ABA2F1 /* WZZAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198805F20D0B54100ABA2F1 /* WZZAlertView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		7198804820D0B4A900ABA2F1 /* WZZAlertDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WZZAlertDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7198804C20D0B4A900ABA2F1 /* WZZAlertDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WZZAlertDemoUITests.m; sourceTree = "<group>"; };
 		7198804E20D0B4A900ABA2F1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7198805F20D0B54100ABA2F1 /* WZZAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WZZAlertView.m; sourceTree = "<group>"; };
+		7198806020D0B54100ABA2F1 /* WZZAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WZZAlertView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +104,7 @@
 		7198802720D0B4A900ABA2F1 /* WZZAlertDemo */ = {
 			isa = PBXGroup;
 			children = (
+				7198805E20D0B54100ABA2F1 /* WZZAlertView */,
 				7198802820D0B4A900ABA2F1 /* AppDelegate.h */,
 				7198802920D0B4A900ABA2F1 /* AppDelegate.m */,
 				7198802B20D0B4A900ABA2F1 /* ViewController.h */,
@@ -130,6 +134,15 @@
 				7198804E20D0B4A900ABA2F1 /* Info.plist */,
 			);
 			path = WZZAlertDemoUITests;
+			sourceTree = "<group>";
+		};
+		7198805E20D0B54100ABA2F1 /* WZZAlertView */ = {
+			isa = PBXGroup;
+			children = (
+				7198806020D0B54100ABA2F1 /* WZZAlertView.h */,
+				7198805F20D0B54100ABA2F1 /* WZZAlertView.m */,
+			);
+			path = WZZAlertView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -268,6 +281,7 @@
 				7198802D20D0B4A900ABA2F1 /* ViewController.m in Sources */,
 				7198803820D0B4A900ABA2F1 /* main.m in Sources */,
 				7198802A20D0B4A900ABA2F1 /* AppDelegate.m in Sources */,
+				7198806120D0B54100ABA2F1 /* WZZAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
