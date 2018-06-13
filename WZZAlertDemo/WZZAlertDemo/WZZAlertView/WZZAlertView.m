@@ -191,9 +191,12 @@
     [alertV setAlpha:0.0f];
     CGAffineTransform tr = updateView.transform;
     updateView.transform = CGAffineTransformScale(updateView.transform, 1.1f, 1.1f);
+    
+    __weak UIView * alertVw = alertV;
+    __weak UIView * updateVieww = updateView;
     [UIView animateWithDuration:0.2f animations:^{
-        [alertV setAlpha:1.0f];
-        updateView.transform = tr;
+        [alertVw setAlpha:1.0f];
+        updateVieww.transform = tr;
     }];
 }
 
@@ -209,11 +212,14 @@
     anim.duration = 0.2f;
     [anim setRemovedOnCompletion:NO];
     [fillLayer addAnimation:anim forKey:@"alphy2"];
+    
     //取消
+    __weak UIView * alertVw = alertV;
+    __weak UIView * weakSelf = self;
     [UIView animateWithDuration:0.2f animations:^{
-        [alertV setAlpha:0.0f];
+        [alertVw setAlpha:0.0f];
     } completion:^(BOOL finished) {
-        [self removeFromSuperview];
+        [weakSelf removeFromSuperview];
     }];
 }
 

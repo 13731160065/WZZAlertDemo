@@ -16,6 +16,7 @@
 		7198804220D0B4A900ABA2F1 /* WZZAlertDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198804120D0B4A900ABA2F1 /* WZZAlertDemoTests.m */; };
 		7198804D20D0B4A900ABA2F1 /* WZZAlertDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198804C20D0B4A900ABA2F1 /* WZZAlertDemoUITests.m */; };
 		7198806120D0B54100ABA2F1 /* WZZAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7198805F20D0B54100ABA2F1 /* WZZAlertView.m */; };
+		7198806420D0C1C500ABA2F1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7198806320D0C1C500ABA2F1 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		7198804E20D0B4A900ABA2F1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7198805F20D0B54100ABA2F1 /* WZZAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WZZAlertView.m; sourceTree = "<group>"; };
 		7198806020D0B54100ABA2F1 /* WZZAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WZZAlertView.h; sourceTree = "<group>"; };
+		7198806320D0C1C500ABA2F1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7198806420D0C1C500ABA2F1 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +91,7 @@
 				7198804020D0B4A900ABA2F1 /* WZZAlertDemoTests */,
 				7198804B20D0B4A900ABA2F1 /* WZZAlertDemoUITests */,
 				7198802620D0B4A900ABA2F1 /* Products */,
+				7198806220D0C1C400ABA2F1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,6 +147,14 @@
 				7198805F20D0B54100ABA2F1 /* WZZAlertView.m */,
 			);
 			path = WZZAlertView;
+			sourceTree = "<group>";
+		};
+		7198806220D0C1C400ABA2F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7198806320D0C1C500ABA2F1 /* UIKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
