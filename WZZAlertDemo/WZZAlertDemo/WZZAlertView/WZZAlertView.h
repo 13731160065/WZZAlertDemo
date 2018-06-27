@@ -34,6 +34,7 @@
 @interface WZZAlertAction : NSObject
 
 @property (nonatomic, strong) NSString * title;
+@property (nonatomic, strong) UIColor * titleColor;
 @property (nonatomic, strong) void(^actionBlock)(WZZAlertView *);
 @property (nonatomic, strong) UIButton * button;
 

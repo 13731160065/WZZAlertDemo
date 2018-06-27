@@ -51,7 +51,7 @@
     CGFloat alertTextHeight = [message boundingRectWithSize:CGSizeMake(280-15-15, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil].size.height+16;
     
     NSInteger actionIdx = (actionsArr.count>2)?actionsArr.count:1;
-    CGFloat alertVHeight = alertTextHeight+40+8+40*actionIdx;
+    CGFloat alertVHeight = alertTextHeight+(title?40:8)+8+40*actionIdx;
     //弹框
     alertV = [[UIView alloc] initWithFrame:CGRectMake(updateView.frame.size.width/2-280/2, updateView.frame.size.height/2-alertVHeight/2, 280, alertVHeight)];
     [updateView addSubview:alertV];
@@ -127,6 +127,9 @@
             [okButton.titleLabel setFont:buttonFont];
             [okButton setTitle:@"取消" forState:UIControlStateNormal];
             [okButton addTarget:self action:@selector(cancelClick) forControlEvents:UIControlEventAllEvents];
+            if (actions[0].titleColor) {
+                [okButton setTitleColor:actions[0].titleColor forState:UIControlStateNormal];
+            }
             
             //横线
             UIView * line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width, 0.7)];
@@ -145,6 +148,9 @@
             [cancelButton setTitle:action.title forState:UIControlStateNormal];
             action.button = cancelButton;
             [cancelButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+            if (action.titleColor) {
+                [cancelButton setTitleColor:action.titleColor forState:UIControlStateNormal];
+            }
             
             WZZAlertAction * action2 = actionsArr[1];
             UIButton * okButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -154,6 +160,9 @@
             [okButton setTitle:action2.title forState:UIControlStateNormal];
             action2.button = okButton;
             [okButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+            if (action2.titleColor) {
+                [okButton setTitleColor:action2.titleColor forState:UIControlStateNormal];
+            }
             
             //横线
             UIView * line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width, 0.7)];
@@ -182,6 +191,9 @@
                 [cancelButton.titleLabel setFont:buttonFont];
                 [cancelButton setTitle:action.title forState:UIControlStateNormal];
                 [cancelButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+                if (action.titleColor) {
+                    [cancelButton setTitleColor:action.titleColor forState:UIControlStateNormal];
+                }
                 action.button = cancelButton;
             }
         }

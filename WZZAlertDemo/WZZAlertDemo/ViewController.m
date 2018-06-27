@@ -55,8 +55,35 @@
         [alert2 show];
         
     }];
+    action3.titleColor = [UIColor redColor];
     
-    WZZAlertView * alert = [WZZAlertView alertWithTitle:@"多个按钮" detail:@"自定义两个按钮文字的弹框" actions:@[action, action2, action3]];
+    WZZAlertAction * action4 = [WZZAlertAction actionWithTitle:@"没有标题" action:^(WZZAlertView *aAlertView) {
+        [aAlertView dismiss];
+        
+        //一个按钮示范
+        WZZAlertAction * action1 = [WZZAlertAction actionWithTitle:@"好的" action:^(WZZAlertView *aAlertView) {
+            [aAlertView dismiss];
+        }];
+        WZZAlertView * alertView2 = [WZZAlertView alertWithTitle:nil detail:@"自定义一个没有标题的弹框" actions:@[action1]];
+        [alertView2 show];
+        
+    }];
+    action4.titleColor = [UIColor lightGrayColor];
+    
+    WZZAlertAction * action5 = [WZZAlertAction actionWithTitle:@"没有描述" action:^(WZZAlertView *aAlertView) {
+        [aAlertView dismiss];
+        
+        //一个按钮示范
+        WZZAlertAction * action1 = [WZZAlertAction actionWithTitle:@"好的" action:^(WZZAlertView *aAlertView) {
+            [aAlertView dismiss];
+        }];
+        WZZAlertView * alertView2 = [WZZAlertView alertWithTitle:@"一个没有描述的弹框" detail:nil actions:@[action1]];
+        [alertView2 show];
+        
+    }];
+    action5.titleColor = [UIColor orangeColor];
+    
+    WZZAlertView * alert = [WZZAlertView alertWithTitle:@"多个按钮" detail:@"自定义两个按钮文字的弹框" actions:@[action, action2, action3, action4, action5]];
     [alert show];
 }
 
