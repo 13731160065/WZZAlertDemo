@@ -8,10 +8,13 @@
 
 #import "WZZAlertView.h"
 
+#define BORDERCOLOR [UIColor lightGrayColor]
+
 @interface WZZAlertView () {
     UIView * updateView;
     UIView * alertV;
     NSArray <WZZAlertAction *>* actionsArr;
+    NSArray <WZZAlertTextField *>* tfsArr;
     NSString * thisTitle;
     NSString * thisDetail;
     CAShapeLayer * fillLayer;
@@ -22,54 +25,76 @@
 @implementation WZZAlertView
 
 //获取实例
-+ (instancetype)alertWithTitle:(NSString *)title detail:(NSString *)detail actions:(NSArray <WZZAlertAction *>*)actions {
++ (instancetype)alertWithTitle:(NSString *)title
+                        detail:(NSString *)detail {
+    WZZAlertView * alert = [[WZZAlertView alloc] initWithFrame:CGRectZero];
+    alert->thisTitle = title;
+    alert->thisDetail = detail;
+    alert->actionsArr = [NSArray array];
+    alert->tfsArr = [NSArray array];
+    return alert;
+}
+
+//获取实例带动作
++ (instancetype)alertWithTitle:(NSString *)title
+                        detail:(NSString *)detail
+                       actions:(NSArray <WZZAlertAction *>*)actions {
     WZZAlertView * alert = [[WZZAlertView alloc] initWithFrame:CGRectZero];
     alert->thisTitle = title;
     alert->thisDetail = detail;
     alert->actionsArr = actions;
+    alert->tfsArr = [NSArray array];
     return alert;
 }
 
-//显示
-- (void)show {
-    [self showAlertWithTitle:thisTitle message:thisDetail actions:actionsArr];
+//获取实例带tf
++ (instancetype)alertWithTitle:(NSString *)title
+                        detail:(NSString *)detail
+                       actions:(NSArray<WZZAlertAction *> *)actions
+                    textFields:(NSArray<WZZAlertTextField *> *)textFields {
+    WZZAlertView * alert = [[WZZAlertView alloc] initWithFrame:CGRectZero];
+    alert->thisTitle = title;
+    alert->thisDetail = detail;
+    alert->actionsArr = actions;
+    alert->tfsArr = textFields;
+    return alert;
+}
+
+//添加动作
+- (void)addAction:(WZZAlertAction *)action {
+    NSMutableArray * arr = [NSMutableArray arrayWithArray:actionsArr];
+    [arr addObject:action];
+    actionsArr = arr;
+}
+
+//添加tf
+- (void)addTextField:(WZZAlertTextField *)tf {
+    NSMutableArray * arr = [NSMutableArray arrayWithArray:tfsArr];
+    [arr addObject:tf];
+    tfsArr = arr;
 }
 
 /**
  弹出提示
  */
-- (void)showAlertWithTitle:(NSString *)title message:(NSString *)message actions:(NSArray <WZZAlertAction *>*)actions {
-    actionsArr = actions;
+- (void)show {
     [self setFrame:[UIScreen mainScreen].bounds];
     [[[UIApplication sharedApplication] keyWindow] addSubview:self];
     
     updateView = [[UIView alloc] initWithFrame:self.bounds];
     [self addSubview:updateView];
     
-    //计算文字高度
-    UIFont * font = [UIFont systemFontOfSize:14];
-    CGFloat alertTextHeight = [message boundingRectWithSize:CGSizeMake(280-15-15, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil].size.height+16;
-    
-    NSInteger actionIdx = (actionsArr.count>2)?actionsArr.count:1;
-    CGFloat alertVHeight = alertTextHeight+(title?40:8)+8+40*actionIdx;
     //弹框
-    alertV = [[UIView alloc] initWithFrame:CGRectMake(updateView.frame.size.width/2-280/2, updateView.frame.size.height/2-alertVHeight/2, 280, alertVHeight)];
+    alertV = [[UIView alloc] init];
+    alertV.translatesAutoresizingMaskIntoConstraints = NO;
     [updateView addSubview:alertV];
     [alertV.layer setCornerRadius:10.0f];
     [alertV.layer setMasksToBounds:YES];
     [alertV setBackgroundColor:[UIColor colorWithWhite:1.0f alpha:0.0f]];
     
-    //镂空背景
-    CGRect myRect = alertV.frame;
-    //背景
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:updateView.bounds cornerRadius:0];
-    //镂空
-    UIBezierPath *circlePath = [UIBezierPath bezierPathWithRoundedRect:myRect cornerRadius:10];
-    [path appendPath:circlePath];
-    [path setUsesEvenOddFillRule:YES];
+    
     //layer
     fillLayer = [CAShapeLayer layer];
-    fillLayer.path = path.CGPath;
     fillLayer.fillRule = kCAFillRuleEvenOdd;//中间镂空的关键点 填充规则
     fillLayer.fillColor = [UIColor blackColor].CGColor;
     fillLayer.opacity = 0.5f;
@@ -81,69 +106,106 @@
     anim.duration = 0.2f;
     [fillLayer addAnimation:anim forKey:@"alphy1"];
     
-    /*
-     毛玻璃
-     */
-    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-    UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:effect];
-    effectView.frame = alertV.bounds;
-    [alertV addSubview:effectView];
+    UIView * lastView = nil;
     
     //标题
-    UILabel * titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, 0, alertV.frame.size.width-16, 40)];
+    UILabel * titleLabel = [[UILabel alloc] init];
     [alertV addSubview:titleLabel];
+    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     [titleLabel setTextAlignment:NSTextAlignmentCenter];
-    [titleLabel setText:title];
+    [titleLabel setText:thisTitle];
     [titleLabel setFont:[UIFont boldSystemFontOfSize:17]];
+    //约束
+    [NSLayoutConstraint constraintWithItem:titleLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeTop multiplier:1.0f constant:20].active = YES;
+    [NSLayoutConstraint constraintWithItem:titleLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:20].active = YES;
+    [NSLayoutConstraint constraintWithItem:titleLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-20].active = YES;
     
+    UIFont * font = [UIFont systemFontOfSize:14];
     //文字
-    UILabel * messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, CGRectGetMaxY(titleLabel.frame), alertV.frame.size.width-30, alertTextHeight)];
+    UILabel * messageLabel = [[UILabel alloc] init];
     [alertV addSubview:messageLabel];
+    messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
     [messageLabel setTextAlignment:NSTextAlignmentCenter];
-    [messageLabel setText:message];
+    [messageLabel setText:thisDetail];
     [messageLabel setFont:font];
     [messageLabel setNumberOfLines:0];
+    //约束
+    [NSLayoutConstraint constraintWithItem:messageLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:titleLabel attribute:NSLayoutAttributeBottom multiplier:1.0f constant:8.0f].active = YES;
+    [NSLayoutConstraint constraintWithItem:messageLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:20].active = YES;
+    [NSLayoutConstraint constraintWithItem:messageLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-20].active = YES;
     
-    if (title && !message) {
-        CGRect tmpFrame = titleLabel.frame;
-        tmpFrame.size.height += (alertTextHeight-8);
-        titleLabel.frame = tmpFrame;
-    }
-    if (!title && message) {
-        CGRect tmpFrame = messageLabel.frame;
-        tmpFrame.origin.y = 8;
-        messageLabel.frame = tmpFrame;
+    lastView = messageLabel;
+    
+    for (int i = 0; i < tfsArr.count; i++) {
+        UIView * tmpTfView = [[UIView alloc] init];
+        UITextField * tmpTf = [[UITextField alloc] init];
+        [alertV addSubview:tmpTf];
+        if (tfsArr[i].alertTFConfig) {
+            tfsArr[i].alertTFConfig(tmpTf);
+        }
+        tmpTfView.layer.borderColor = BORDERCOLOR.CGColor;
+        tmpTfView.layer.borderWidth = 0.7f;
+        
+        tmpTf.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1 constant:i?-0.7f:15].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:15].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-15].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:30].active = YES;
+        lastView = tmpTf;
     }
     
     UIFont * buttonFont = [UIFont systemFontOfSize:17];
-    
-    switch (actions.count) {
+    switch (actionsArr.count) {
         case 0:
         {
+            //横线
+            UIView * line1 = [[UIView alloc] init];
+            [alertV addSubview:line1];
+            [line1 setBackgroundColor:BORDERCOLOR];
+            line1.translatesAutoresizingMaskIntoConstraints = NO;
+            //约束
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:15].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:0.7f].active = YES;
+            
             //取消
             UIButton * okButton = [UIButton buttonWithType:UIButtonTypeSystem];
-            [okButton setFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width, 40)];
             [alertV addSubview:okButton];
+            okButton.translatesAutoresizingMaskIntoConstraints = NO;
             [okButton.titleLabel setFont:buttonFont];
             [okButton setTitle:@"取消" forState:UIControlStateNormal];
             [okButton addTarget:self action:@selector(cancelClick) forControlEvents:UIControlEventAllEvents];
-            if (actions[0].titleColor) {
-                [okButton setTitleColor:actions[0].titleColor forState:UIControlStateNormal];
-            }
             
-            //横线
-            UIView * line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width, 0.7)];
-            [alertV addSubview:line1];
-            [line1 setBackgroundColor:[UIColor lightGrayColor]];
+            //约束
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line1 attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:8.0f].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-8.0f].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:40].active = YES;
+            lastView = okButton;
         }
             break;
         case 2:
         {
             //横排2
-            WZZAlertAction * action = actionsArr[0];
             UIButton * cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-            [cancelButton setFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width/2, 40)];
+            cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
             [alertV addSubview:cancelButton];
+            
+            UIButton * okButton = [UIButton buttonWithType:UIButtonTypeSystem];
+            [alertV addSubview:okButton];
+            okButton.translatesAutoresizingMaskIntoConstraints = NO;
+            
+            UIView * line1 = [[UIView alloc] init];
+            [alertV addSubview:line1];
+            line1.translatesAutoresizingMaskIntoConstraints = NO;
+            
+            UIView * line2 = [[UIView alloc] init];
+            [alertV addSubview:line2];
+            line2.translatesAutoresizingMaskIntoConstraints = NO;
+            
+            WZZAlertAction * action = actionsArr[0];
             [cancelButton.titleLabel setFont:buttonFont];
             [cancelButton setTitle:action.title forState:UIControlStateNormal];
             action.button = cancelButton;
@@ -153,9 +215,6 @@
             }
             
             WZZAlertAction * action2 = actionsArr[1];
-            UIButton * okButton = [UIButton buttonWithType:UIButtonTypeSystem];
-            [okButton setFrame:CGRectMake(CGRectGetMaxX(cancelButton.frame), CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width/2, 40)];
-            [alertV addSubview:okButton];
             [okButton.titleLabel setFont:buttonFont];
             [okButton setTitle:action2.title forState:UIControlStateNormal];
             action2.button = okButton;
@@ -165,13 +224,35 @@
             }
             
             //横线
-            UIView * line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8, alertV.frame.size.width, 0.7)];
-            [alertV addSubview:line1];
-            [line1 setBackgroundColor:[UIColor lightGrayColor]];
+            [line1 setBackgroundColor:BORDERCOLOR];
             //竖线
-            UIView * line2 = [[UIView alloc] initWithFrame:CGRectMake(alertV.frame.size.width/2, CGRectGetMaxY(messageLabel.frame)+8, 0.5, 40)];
-            [alertV addSubview:line2];
-            [line2 setBackgroundColor:[UIColor lightGrayColor]];
+            [line2 setBackgroundColor:BORDERCOLOR];
+            
+            //横线约束，l1上等于m下，l1左等于左，l1右等于右，l1高等于0.7
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:15].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:0.7f].active = YES;
+            
+            //竖线约束，l2上等于l1下，l2x等于x，l2宽等于0.7，l2高等于40
+            [NSLayoutConstraint constraintWithItem:line2 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line1 attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line2 attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:line2 attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:0.7f].active = YES;
+            [NSLayoutConstraint constraintWithItem:line2 attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:40].active = YES;
+
+            //b1约束，b1上等于l1下，b1左等于左，b1右等于l2左，b1高等于l2高
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line1 attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:8.0f].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:line2 attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:okButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:line2 attribute:NSLayoutAttributeHeight multiplier:1 constant:0].active = YES;
+            
+            //b2约束
+            [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line1 attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:line2 attribute:NSLayoutAttributeRight multiplier:1.0f constant:0].active = YES;
+            [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-8.0f].active = YES;
+            [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:line2 attribute:NSLayoutAttributeHeight multiplier:1 constant:0].active = YES;
+            
+            lastView = line2;
         }
             break;
             
@@ -180,14 +261,21 @@
             //纵排
             for (int i = 0; i < actionsArr.count; i++) {
                 //横线
-                UIView * line1 = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8+40*(i), alertV.frame.size.width, 0.7)];
+                UIView * line1 = [[UIView alloc] init];
                 [alertV addSubview:line1];
-                [line1 setBackgroundColor:[UIColor lightGrayColor]];
+                line1.translatesAutoresizingMaskIntoConstraints = NO;
+                [line1 setBackgroundColor:BORDERCOLOR];
+                
+                //横线约束
+                [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:i?0:15].active = YES;
+                [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0].active = YES;
+                [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:0].active = YES;
+                [NSLayoutConstraint constraintWithItem:line1 attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:0.7f].active = YES;
                 
                 WZZAlertAction * action = actionsArr[i];
                 UIButton * cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-                [cancelButton setFrame:CGRectMake(0, CGRectGetMaxY(messageLabel.frame)+8+40*i, alertV.frame.size.width, 40)];
                 [alertV addSubview:cancelButton];
+                cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
                 [cancelButton.titleLabel setFont:buttonFont];
                 [cancelButton setTitle:action.title forState:UIControlStateNormal];
                 [cancelButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -195,10 +283,44 @@
                     [cancelButton setTitleColor:action.titleColor forState:UIControlStateNormal];
                 }
                 action.button = cancelButton;
+                
+                //约束
+                [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line1 attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0].active = YES;
+                [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:8.0f].active = YES;
+                [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-8.0f].active = YES;
+                [NSLayoutConstraint constraintWithItem:cancelButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:40].active = YES;
+                
+                lastView = cancelButton;
             }
         }
             break;
     }
+    
+    //弹框约束
+    [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:280].active = YES;
+    [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1 constant:0].active = YES;
+    [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:updateView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0].active = YES;
+    [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:updateView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0].active = YES;
+    
+    [self layoutIfNeeded];
+    
+    //镂空背景
+    CGRect myRect = alertV.frame;
+    //背景
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:updateView.bounds cornerRadius:0];
+    //镂空
+    UIBezierPath *circlePath = [UIBezierPath bezierPathWithRoundedRect:myRect cornerRadius:10];
+    [path appendPath:circlePath];
+    [path setUsesEvenOddFillRule:YES];
+    fillLayer.path = path.CGPath;
+    
+    /*
+     毛玻璃
+     */
+    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:effect];
+    effectView.frame = alertV.bounds;
+    [alertV insertSubview:effectView atIndex:0];
     
     [alertV setAlpha:0.0f];
     CGAffineTransform tr = updateView.transform;
@@ -255,6 +377,16 @@
     action.title = title;
     action.actionBlock = actionBlock;
     return action;
+}
+
+@end
+
+@implementation WZZAlertTextField
+
++ (instancetype)textFieldWithConfig:(void (^)(UITextField *))tfConfig {
+    WZZAlertTextField * tf = [[WZZAlertTextField alloc] init];
+    tf.alertTFConfig = tfConfig;
+    return tf;
 }
 
 @end
