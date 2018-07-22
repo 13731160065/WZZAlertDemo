@@ -138,21 +138,32 @@
     
     for (int i = 0; i < tfsArr.count; i++) {
         UIView * tmpTfView = [[UIView alloc] init];
+        [alertV addSubview:tmpTfView];
         UITextField * tmpTf = [[UITextField alloc] init];
-        [alertV addSubview:tmpTf];
+        [tmpTfView addSubview:tmpTf];
+        tmpTf.layer.borderColor = BORDERCOLOR.CGColor;
+        tmpTf.layer.borderWidth = 0.7f;
         if (tfsArr[i].alertTFConfig) {
             tfsArr[i].alertTFConfig(tmpTf);
         }
-        tmpTfView.layer.borderColor = BORDERCOLOR.CGColor;
-        tmpTfView.layer.borderWidth = 0.7f;
+        tmpTfView.layer.borderColor = tmpTf.layer.borderColor;
+        tmpTfView.layer.borderWidth = tmpTf.layer.borderWidth;
+        tmpTf.layer.borderColor = [UIColor clearColor].CGColor;
+        tmpTf.layer.borderWidth = 0;
         
         tmpTf.translatesAutoresizingMaskIntoConstraints = NO;
+        tmpTfView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1 constant:i?-0.7f:15].active = YES;
         [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeLeft multiplier:1.0f constant:15].active = YES;
         [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:alertV attribute:NSLayoutAttributeRight multiplier:1.0f constant:-15].active = YES;
         [NSLayoutConstraint constraintWithItem:tmpTfView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:30].active = YES;
-        lastView = tmpTf;
+        lastView = tmpTfView;
+        
+        [NSLayoutConstraint constraintWithItem:tmpTf attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:tmpTfView attribute:NSLayoutAttributeTop multiplier:1 constant:4].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTf attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:tmpTfView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:-4].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTf attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:tmpTfView attribute:NSLayoutAttributeLeft multiplier:1.0f constant:4].active = YES;
+        [NSLayoutConstraint constraintWithItem:tmpTf attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:tmpTfView attribute:NSLayoutAttributeRight multiplier:1.0f constant:-4].active = YES;
     }
     
     UIFont * buttonFont = [UIFont systemFontOfSize:17];
