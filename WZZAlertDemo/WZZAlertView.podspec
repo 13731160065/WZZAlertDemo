@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "WZZAlertView"
-  s.version      = "1.0.3"
+  s.version      = "1.0.4"
   s.summary      = "WZZAlertView是一个模仿系统alert的视图"
 
   # This description is used to generate tags and improve search results.
