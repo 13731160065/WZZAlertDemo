@@ -13,6 +13,7 @@
 @interface WZZAlertView () {
     UIView * updateView;
     UIView * alertV;
+    NSLayoutConstraint * alertConCenterY;
     NSArray <WZZAlertAction *>* actionsArr;
     NSArray <WZZAlertTextField *>* tfsArr;
     NSString * thisTitle;
@@ -27,24 +28,14 @@
 //获取实例
 + (instancetype)alertWithTitle:(NSString *)title
                         detail:(NSString *)detail {
-    WZZAlertView * alert = [[WZZAlertView alloc] initWithFrame:CGRectZero];
-    alert->thisTitle = title;
-    alert->thisDetail = detail;
-    alert->actionsArr = [NSArray array];
-    alert->tfsArr = [NSArray array];
-    return alert;
+    return [self alertWithTitle:title detail:detail actions:[NSArray array]];
 }
 
 //获取实例带动作
 + (instancetype)alertWithTitle:(NSString *)title
                         detail:(NSString *)detail
                        actions:(NSArray <WZZAlertAction *>*)actions {
-    WZZAlertView * alert = [[WZZAlertView alloc] initWithFrame:CGRectZero];
-    alert->thisTitle = title;
-    alert->thisDetail = detail;
-    alert->actionsArr = actions;
-    alert->tfsArr = [NSArray array];
-    return alert;
+    return [self alertWithTitle:title detail:detail actions:actions textFields:[NSArray array]];
 }
 
 //获取实例带tf
@@ -57,6 +48,10 @@
     alert->thisDetail = detail;
     alert->actionsArr = actions;
     alert->tfsArr = textFields;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:alert selector:@selector(keyShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:alert selector:@selector(keyHide:) name:UIKeyboardWillHideNotification object:nil];
+    
     return alert;
 }
 
@@ -311,9 +306,19 @@
     [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:280].active = YES;
     [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:lastView attribute:NSLayoutAttributeBottom multiplier:1 constant:0].active = YES;
     [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:updateView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0].active = YES;
-    [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:updateView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0].active = YES;
+    alertConCenterY = [NSLayoutConstraint constraintWithItem:alertV attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:updateView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+    alertConCenterY.active = YES;
     
     [self layoutIfNeeded];
+    
+    /*
+     毛玻璃
+     */
+    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+    UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:effect];
+    effectView.frame = alertV.bounds;
+    [alertV insertSubview:effectView atIndex:0];
+    
     
     //镂空背景
     CGRect myRect = alertV.frame;
@@ -324,14 +329,6 @@
     [path appendPath:circlePath];
     [path setUsesEvenOddFillRule:YES];
     fillLayer.path = path.CGPath;
-    
-    /*
-     毛玻璃
-     */
-    UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-    UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:effect];
-    effectView.frame = alertV.bounds;
-    [alertV insertSubview:effectView atIndex:0];
     
     [alertV setAlpha:0.0f];
     CGAffineTransform tr = updateView.transform;
@@ -346,6 +343,7 @@
 }
 
 - (void)dismiss {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self cancelClick];
 }
 
@@ -376,6 +374,39 @@
             }
         }
     }];
+}
+
+- (void)keyShow:(NSNotification *)noti {
+    NSDictionary * obj = noti.userInfo;
+    CGRect re = [obj[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGFloat hei = [UIScreen mainScreen].bounds.size.height/2.0f-re.origin.y/2.0f;
+    alertConCenterY.constant = -hei;
+    [self layoutIfNeeded];
+
+    //镂空背景
+    CGRect myRect = alertV.frame;
+    //背景
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:updateView.bounds cornerRadius:0];
+    //镂空
+    UIBezierPath *circlePath = [UIBezierPath bezierPathWithRoundedRect:myRect cornerRadius:10];
+    [path appendPath:circlePath];
+    [path setUsesEvenOddFillRule:YES];
+    fillLayer.path = path.CGPath;
+}
+
+- (void)keyHide:(NSNotification *)noti {
+    alertConCenterY.constant = 0;
+    [self layoutIfNeeded];
+    
+    //镂空背景
+    CGRect myRect = alertV.frame;
+    //背景
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:updateView.bounds cornerRadius:0];
+    //镂空
+    UIBezierPath *circlePath = [UIBezierPath bezierPathWithRoundedRect:myRect cornerRadius:10];
+    [path appendPath:circlePath];
+    [path setUsesEvenOddFillRule:YES];
+    fillLayer.path = path.CGPath;
 }
 
 @end
